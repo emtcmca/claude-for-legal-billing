@@ -506,4 +506,4 @@ MIT. See [LICENSE](LICENSE) for terms.
 
 ## Author
 
-Built by [Eric Tetzlaff](https://github.com/tetzlae) as an extension to the claude-for-legal ecosystem.
+Built by [Eric Tetzlaff](https://github.com/emtcmca) as an extension to the claude-for-legal ecosystem.
