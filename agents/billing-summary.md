@@ -2,8 +2,10 @@
 name: billing-summary
 description: >
   Agent that reads the time register, computes a WIP summary, and posts a billing
-  digest. Invocable on demand. To run on a schedule, use Claude Code's scheduling
-  feature: /schedule "first business day of each month" /billing:billing-summary.
+  digest. Invocable on demand. For recurring automation, use a local scheduler
+  (e.g. Windows Task Scheduler) that runs "claude -p /billing:billing-summary" —
+  billing data is on the local or shared filesystem and must be accessible to the
+  process that runs the command. Do not use /schedule (cloud routines).
   Trigger phrases: "billing summary", "what's my WIP", "monthly billing".
 model: sonnet
 tools: ["Read", "mcp__*__slack_send_message"]
@@ -17,13 +19,17 @@ Unbilled time accumulates silently. This agent reads the register, surfaces what
 
 ## Invocation and scheduling
 
-Run on demand with `/billing:billing-summary`. To automate, use Claude Code's built-in scheduling:
+Run on demand with `/billing:billing-summary`.
 
-```
-/schedule "first business day of each month" /billing:billing-summary
-```
+For recurring automation, use a **local** scheduler — billing data lives on the local or shared filesystem and the process that runs the command must be able to read it. `/schedule` creates cloud routines that run in a remote environment without filesystem access and will not work here.
 
-No scheduling mechanism is bundled with the plugin — invoking the agent is the only built-in trigger. Weekly cadence works well for high-volume practices.
+**Windows Task Scheduler** (recommended for monthly runs):
+1. Open Task Scheduler → Create Basic Task
+2. Set the trigger: monthly, first day of the month
+3. Action: Start a program → `claude` with arguments `-p "/billing:billing-summary"`
+4. Ensure the task runs under a user account that has access to the billing data path
+
+No scheduling mechanism is bundled with the plugin — invoking the skill or agent is the only built-in trigger.
 
 ## What it does
 

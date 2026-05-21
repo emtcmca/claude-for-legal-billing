@@ -95,7 +95,7 @@ Wait for the attorney's response:
 - **User types a narrative + `log`** (or just types a narrative and presses enter): Ask for task code if `Task codes: required` or `optional` in config. If optional: "Task code? (L100/L200/etc., or press enter to skip)". Then write the entry directly (do not delegate to `/billing:time-entry`, which is `disable-model-invocation`):
   1. Generate an entry ID: `te-YYYY-MMDD-NNN` (NNN = next sequential number for the day, zero-padded).
   2. Read `[billing_data_path]/time-register.yaml`; if the file is empty or comment-only, treat as an empty list.
-  2a. **Duplicate check** — scan existing entries for any with the same `attorney`, `client`, `matter_slug`, and `date` (today). If found, warn before proceeding: "There is already a time entry for [attorney] on [client] / [matter] today: '[existing narrative]' ([existing hours]h). Is this a separate billable activity or a duplicate? [Continue / Cancel]" If the attorney cancels, return to the panel without deleting `.session-start`.
+  2a. **Duplicate check** — scan existing entries for any with the same `attorney`, `client`, `matter_slug`, and `date` (today). If found, warn before proceeding: "There is already a time entry for [attorney] on [client] / [matter] today: '[existing narrative]' ([existing hours]h). Is this a separate billable activity or a duplicate? [Continue / Cancel]" If the attorney cancels, return to the panel without deleting the session timer file.
   3. Append a new top-level list item at the end of the file (each item starts with `- id:` at column 0):
      ```yaml
      - id: [id]

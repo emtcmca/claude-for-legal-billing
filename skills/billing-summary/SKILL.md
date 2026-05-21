@@ -11,7 +11,7 @@ argument-hint: "[--month YYYY-MM to scope to a specific month]"
 
 # /billing:billing-summary
 
-Runs the same analysis as the billing-summary agent but as an on-demand slash command. For automated monthly runs, schedule this skill with `/schedule "first business day of each month" /billing:billing-summary`.
+Runs the same analysis as the billing-summary agent but as an on-demand slash command. For automated monthly runs, use Windows Task Scheduler (or your OS equivalent) to run `claude -p "/billing:billing-summary"` on a local process that can access the billing data path. Do not use `/schedule` — that feature runs cloud routines without access to your local or shared filesystem.
 
 ## Instructions
 
