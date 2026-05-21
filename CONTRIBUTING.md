@@ -9,7 +9,7 @@ Skills are instruction files (`SKILL.md`), not executable code. They tell Claude
 - **Skills** (`skills/<name>/SKILL.md`) — user-invocable commands. Follow the frontmatter format (`name`, `description`, `argument-hint`, optionally `disable-model-invocation: true` for skills that write financial records).
 - **Agents** (`agents/<name>.md`) — scheduled or triggered automation. Follow the frontmatter format (`name`, `description`, `model`, `tools`).
 - **Hooks** (`hooks/`) — shell scripts (`*.ps1`) and the `hooks.json` manifest. Scripts must be idempotent and exit 0 in all cases. Stop hooks that block must output valid JSON to stdout.
-- **CLAUDE.md** — the config template. Developer notes only in the HTML comment block; runtime behavior lives in SKILL.md files.
+- **`.claude-plugin/config-template.md`** — the user config template. Kept out of root to pass strict plugin validation. cold-start-interview uses it as the structural reference when writing `~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md`. Developer notes only in the HTML comment block; runtime behavior lives in SKILL.md files.
 
 ## Data format
 

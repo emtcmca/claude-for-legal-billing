@@ -48,7 +48,9 @@ claude-for-legal/
 ├── commercial-legal/
 ├── ip-legal/
 ├── billing-legal/      ← the new folder goes here
-│   ├── CLAUDE.md
+│   ├── .claude-plugin/
+│   │   ├── plugin.json
+│   │   └── config-template.md
 │   ├── skills/
 │   ├── agents/
 │   └── hooks/
@@ -162,7 +164,7 @@ For time spent outside Claude Code — phone calls, in-person meetings, court ap
 /billing:time-entry
 ```
 
-The skill walks you through selecting the client, matter, date, hours, rate, and narrative. It also checks for potential double-billing (same client, same date, overlapping time).
+The skill walks you through selecting the client, matter, date, hours, rate, and narrative. It also checks for potential double-billing: if the same attorney already has an entry for the same client, matter, and date, you'll be warned before the entry is saved. The check is date-level — entries do not store start/end times, so overlap detection within a day is not possible.
 
 **Entering hours:**
 - As decimal hours: `0.8` (48 minutes)
