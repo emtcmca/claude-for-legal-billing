@@ -1,17 +1,32 @@
 {
+  "_note": "This file documents the hooks this plugin needs. The cold-start interview installs them into the user's settings.json. Hook scripts are copied from this directory to the version-independent config path during setup so they survive plugin updates.",
+
   "hooks": {
-    "Stop": [
+    "UserPromptSubmit": [
       {
-        "description": "End-of-session billing panel. Add this hook to ~/.claude/settings.json or your project .claude/settings.json to automatically prompt for time entry at the end of each Claude Code session. The cold-start-interview will offer to do this for you.",
+        "description": "Writes a session-start timestamp on the first message of each session, enabling automatic elapsed-time calculation in the billing panel.",
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -Command \"$billingConfig = '~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md'; if (Test-Path $billingConfig) { $content = Get-Content $billingConfig -Raw; if ($content -notmatch '\\[PLACEHOLDER\\]' -and $content -match 'Billing panel at end of session: enabled') { Write-Output 'BILLING_PANEL_TRIGGER' } }\""
+            "command": "powershell -NoProfile -NonInteractive -File \"${BILLING_HOOKS_PATH}/session-start.ps1\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "description": "Checks whether a legal matter is active and billing is enabled. If yes, outputs {\"decision\":\"block\",\"reason\":\"...\"} to block the session from closing until the attorney logs time via /billing:billing-status --session-end.",
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -NonInteractive -File \"${BILLING_HOOKS_PATH}/billing-stop.ps1\""
           }
         ]
       }
     ]
   },
-  "_setup_note": "This file documents the recommended hook configuration. To activate the end-of-session billing panel, run /billing:cold-start-interview and choose to enable it — the setup interview will configure your settings.json automatically. Alternatively, add a Stop hook manually in your ~/.claude/settings.json that runs /billing:billing-status."
+
+  "_setup_instructions": "The cold-start interview replaces ${BILLING_HOOKS_PATH} with the actual config path (~/.claude/plugins/config/claude-for-legal/billing/hooks/) and writes the expanded commands into the user's ~/.claude/settings.json Stop and UserPromptSubmit hook arrays. It also copies session-start.ps1 and billing-stop.ps1 to that config path so they are not lost on plugin update."
 }

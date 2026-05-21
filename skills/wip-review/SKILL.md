@@ -1,5 +1,6 @@
 ---
 name: wip-review
+disable-model-invocation: true
 description: >
   Review, edit, and approve pending time entries before invoicing — the pre-billing
   step. Use when preparing to send an invoice, doing end-of-month billing review,

@@ -63,7 +63,11 @@ C:\Users\[your-username]\.claude\plugins\cache\claude-for-legal\billing-legal\1.
 
 ### Step 2 — Register the plugin with Claude Code
 
-Add `billing-legal` to your Claude Code plugin configuration. In your `~/.claude/settings.json`, add it to the plugins list alongside your other claude-for-legal plugins:
+The plugin is identified by `.claude-plugin/plugin.json` in its root directory. Claude Code's plugin manager uses this file to discover the plugin's name, version, and author.
+
+If your claude-for-legal installation supports the plugin manager, register `billing-legal` through the manager UI or by running `/legal-builder-hub:skill-installer` from the legal-builder-hub plugin.
+
+If you're managing plugins manually, add the plugin path to your `~/.claude/settings.json`:
 
 ```json
 {
@@ -75,7 +79,7 @@ Add `billing-legal` to your Claude Code plugin configuration. In your `~/.claude
 }
 ```
 
-> If you're not sure what your current `settings.json` looks like, type `/billing:cold-start-interview` in a new Claude Code session. If Claude doesn't recognize the command, the plugin hasn't been registered yet — check your settings path.
+> To verify registration worked: open a new Claude Code session and type `/billing:cold-start-interview`. If Claude doesn't recognize the command, the plugin path in settings.json doesn't match where you placed the folder — double-check the path.
 
 ### Step 3 — Run setup
 

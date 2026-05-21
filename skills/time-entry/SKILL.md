@@ -1,5 +1,6 @@
 ---
 name: time-entry
+disable-model-invocation: true
 description: >
   Add a time entry manually — for work done outside a Claude Code session,
   corrections, or entries not captured by the billing panel. Use when logging
@@ -86,14 +87,17 @@ Ask in sequence. Pre-fill from `$ARGUMENTS` if provided.
   
 ### 4. Anti-double-billing check
 
-Before writing, scan `time-register.yaml` for entries with:
+Before writing, read `time-register.yaml`. If the file is empty or contains only comment lines (starting with `#`), treat it as an empty list.
+
+Scan for entries with all three of:
 - Same `attorney`
 - Same `client` and `matter_slug`
 - Same `date`
-- Overlapping or adjacent hours (within the same hour range)
 
-If found, warn:
-> There's already a time entry for this client on [date]: [existing narrative] ([existing hours]h). Are you sure you want to add another entry? Double-billing is an ethics violation. [Y/n]
+If any such entry is found, warn:
+> There is already a time entry for [attorney] on [client] / [matter] for [date]: "[existing narrative]" ([existing hours]h). Are you sure you want to add another entry? Verify this is not a duplicate before proceeding — double-billing is a professional ethics violation. [Y/n]
+
+Note: the check is date-level only because entries do not store start or end times. If the attorney confirms, proceed — they may legitimately have multiple entries on the same date (e.g., a morning review session and an afternoon call).
 
 ### 5. Confirm and write
 
@@ -114,7 +118,7 @@ Ready to log:
 Log this entry? [Y/n]
 ```
 
-On confirmation, generate an entry ID (`te-YYYY-MMDD-NNN` where NNN is zero-padded sequential for the day) and append to `[billing_data_path]/time-register.yaml`:
+On confirmation, generate an entry ID (`te-YYYY-MMDD-NNN` where NNN is zero-padded sequential for the day) and append a new top-level list item to `[billing_data_path]/time-register.yaml`. If the file is empty or comment-only, the first entry becomes the first list item. Each item starts with `- id:` at column 0:
 
 ```yaml
 - id: te-[YYYY-MMDD]-[NNN]

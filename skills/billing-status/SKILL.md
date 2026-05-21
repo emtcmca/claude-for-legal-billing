@@ -27,14 +27,9 @@ Get `billing_data_path` from the config.
 Check these sources in order (first match wins):
 
 1. If `--client <slug>` was passed, use that client.
-2. Check each installed plugin's active matter:
-   - Read `~/.claude/plugins/config/claude-for-legal/commercial-legal/CLAUDE.md` → `Active matter:` line
-   - Read `~/.claude/plugins/config/claude-for-legal/ip-legal/CLAUDE.md` → `Active matter:` line
-   - Read `~/.claude/plugins/config/claude-for-legal/corporate-legal/CLAUDE.md` → `Active matter:` line
-   - Read any other installed plugin CLAUDE.md that has an `Active matter:` line
-   - The first non-`none` value found is the active matter slug.
-3. Read the matter slug's `matter.md` file (from the relevant plugin's matters folder) to get the client name.
-4. Look up the client slug in `[billing_data_path]/clients/[slug].yaml`. If the client file doesn't exist yet, that's fine — note it in the panel.
+2. Check each installed plugin's active matter by reading its practice-level `CLAUDE.md` at `~/.claude/plugins/config/claude-for-legal/<plugin>/CLAUDE.md`. Check these plugins in order: `commercial-legal`, `ip-legal`, `corporate-legal`, `ai-governance-legal`, `product-legal`, `litigation-legal`. For each, look for a line matching the pattern `Active matter: <slug>` where `<slug>` is not the literal word `none` and not the phrase `none — practice-level context only`. The first non-none slug found is the active matter.
+3. Once the active matter slug and plugin are known, read the matter's context file at `~/.claude/plugins/config/claude-for-legal/<plugin>/matters/<slug>/matter.md`. Parse the `**Client:**` line to get the client display name, and derive a client slug from it (lowercase-hyphenated). If `matter.md` is not found, use the matter slug itself as the client identifier.
+4. Look up `[billing_data_path]/clients/<client-slug>.yaml`. If the file does not exist, proceed with the display name from `matter.md` and note in the panel that no billing profile exists for this client yet (offer to create one via `/billing:time-entry`).
 
 If no active matter is found and `--session-end` was passed, show a minimal panel asking which client to log against.
 
@@ -42,7 +37,7 @@ If no active matter is found and `--session-end` was passed, show a minimal pane
 
 When triggered with `--session-end`:
 
-1. Look for a session start file at `~/.claude/plugins/config/claude-for-legal/billing/.session-start`. This file is written by a `UserPromptSubmit` hook (described in the cold-start-interview).
+1. Look for a session start file at `[billing_data_path]/.session-start`. This file is written by the `UserPromptSubmit` hook (`session-start.ps1`) that the cold-start interview installs. It contains a Unix timestamp (integer seconds since epoch).
 2. If the file exists, read the timestamp, compute elapsed minutes, round UP to the next 0.1h increment:
    - 1–6 min → 0.1h
    - 7–12 min → 0.2h

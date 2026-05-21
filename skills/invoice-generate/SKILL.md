@@ -1,5 +1,6 @@
 ---
 name: invoice-generate
+disable-model-invocation: true
 description: >
   Generate a printable invoice exhibit from approved time entries for a client.
   Produces a Markdown file formatted as supporting documentation to attach to a

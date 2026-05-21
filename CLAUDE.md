@@ -1,20 +1,15 @@
 <!--
-CONFIGURATION LOCATION
+DEVELOPER NOTE — this is the plugin template, not the user's config.
 
-User-specific configuration for this plugin lives at a version-independent path that survives plugin updates:
-
+The user's active config lives at:
   ~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md
 
-Rules for every skill, command, and agent in this plugin:
-1. READ configuration from that path. Not from this file.
-2. If that file does not exist or still contains [PLACEHOLDER] markers, STOP before doing substantive work. Say: "This plugin needs setup before it can give you useful output. Run /billing:cold-start-interview — it takes about 10 minutes and every command in this plugin depends on it." Do NOT proceed with placeholder or default configuration. The only skill that runs without setup is /billing:cold-start-interview itself.
-3. Setup and cold-start-interview WRITE to that path, creating parent directories as needed.
-4. On first run after a plugin update, if a populated CLAUDE.md exists at the old cache path but not at the config path, copy it forward before proceeding.
-5. This file (the one you are reading) is the TEMPLATE. It ships with the plugin and is replaced on every update. Never write user data here.
+This file is the template that cold-start-interview copies to that path on first run.
+It is replaced on every plugin update. User data must never be written here.
 
-**Billing data path.** All time entries, client profiles, attorney profiles, and invoices live at the path specified in `## Billing data` below. For solo use this is `~/.claude/plugins/config/claude-for-legal/billing/`. For firm use it points to a shared OneDrive or network folder. Every skill reads and writes to that path — never to the config path or the cache path.
-
-**Shared company profile.** Firm name, address, and size come from `~/.claude/plugins/config/claude-for-legal/company-profile.md` — shared across all plugins. If it doesn't exist, cold-start-interview will create it.
+Runtime behavior (placeholder checks, config-path reads, data-path resolution) is
+defined in each skill's SKILL.md, not in this template. Skills explicitly read from
+the config path — they do not rely on this file being auto-loaded by Claude Code.
 -->
 
 # Billing Practice Profile
