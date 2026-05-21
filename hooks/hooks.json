@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "description": "End-of-session billing panel. Add this hook to ~/.claude/settings.json or your project .claude/settings.json to automatically prompt for time entry at the end of each Claude Code session. The cold-start-interview will offer to do this for you.",
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$billingConfig = '~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md'; if (Test-Path $billingConfig) { $content = Get-Content $billingConfig -Raw; if ($content -notmatch '\\[PLACEHOLDER\\]' -and $content -match 'Billing panel at end of session: enabled') { Write-Output 'BILLING_PANEL_TRIGGER' } }\""
+          }
+        ]
+      }
+    ]
+  },
+  "_setup_note": "This file documents the recommended hook configuration. To activate the end-of-session billing panel, run /billing:cold-start-interview and choose to enable it — the setup interview will configure your settings.json automatically. Alternatively, add a Stop hook manually in your ~/.claude/settings.json that runs /billing:billing-status."
+}
