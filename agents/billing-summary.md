@@ -6,7 +6,7 @@ description: >
   to the destination configured in the billing practice profile. Trigger phrases:
   "billing summary", "what's my WIP", "monthly billing", or on schedule.
 model: sonnet
-tools: ["Read", "Write", "mcp__*__slack_send_message"]
+tools: ["Read", "mcp__*__slack_send_message"]
 ---
 
 # Billing Summary Agent

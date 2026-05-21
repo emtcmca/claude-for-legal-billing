@@ -63,23 +63,25 @@ C:\Users\[your-username]\.claude\plugins\cache\claude-for-legal\billing-legal\1.
 
 ### Step 2 — Register the plugin with Claude Code
 
-The plugin is identified by `.claude-plugin/plugin.json` in its root directory. Claude Code's plugin manager uses this file to discover the plugin's name, version, and author.
+The plugin is identified by `.claude-plugin/plugin.json`. Register it using the Claude Code CLI from inside the `billing-legal` folder:
 
-If your claude-for-legal installation supports the plugin manager, register `billing-legal` through the manager UI or by running `/legal-builder-hub:skill-installer` from the legal-builder-hub plugin.
+```powershell
+claude plugin install .
+```
 
-If you're managing plugins manually, add the plugin path to your `~/.claude/settings.json`:
+This writes the plugin to `enabledPlugins` in your `~/.claude/settings.json`, which is the supported install path for Claude Code plugins.
+
+If the CLI command isn't available in your version of Claude Code, add the plugin manually to `~/.claude/settings.json`:
 
 ```json
 {
-  "plugins": [
-    "claude-for-legal/commercial-legal",
-    "claude-for-legal/ip-legal",
-    "claude-for-legal/billing-legal"
+  "enabledPlugins": [
+    "path/to/claude-for-legal/billing-legal"
   ]
 }
 ```
 
-> To verify registration worked: open a new Claude Code session and type `/billing:cold-start-interview`. If Claude doesn't recognize the command, the plugin path in settings.json doesn't match where you placed the folder — double-check the path.
+> To verify registration: open a new Claude Code session and type `/billing:cold-start-interview`. If Claude doesn't recognize the command, the path in `enabledPlugins` doesn't point to the folder containing `.claude-plugin/plugin.json` — double-check the path.
 
 ### Step 3 — Run setup
 

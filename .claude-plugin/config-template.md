@@ -1,15 +1,18 @@
 <!--
-DEVELOPER NOTE — this is the plugin template, not the user's config.
+DEVELOPER NOTE — user config template. Kept in .claude-plugin/ (not root) to pass
+strict plugin validation, which errors on root CLAUDE.md files that are not loaded
+as plugin context.
 
 The user's active config lives at:
   ~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md
 
-This file is the template that cold-start-interview copies to that path on first run.
-It is replaced on every plugin update. User data must never be written here.
+cold-start-interview writes that file from scratch using interview answers, using
+this template as the structural reference for section names and placeholder markers.
+User data must never be written here.
 
 Runtime behavior (placeholder checks, config-path reads, data-path resolution) is
-defined in each skill's SKILL.md, not in this template. Skills explicitly read from
-the config path — they do not rely on this file being auto-loaded by Claude Code.
+defined in each skill's SKILL.md. Skills explicitly read from the config path and
+do not rely on this file being auto-loaded.
 -->
 
 # Billing Practice Profile

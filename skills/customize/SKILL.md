@@ -72,7 +72,7 @@ On user input, identify the section and field. Show the current value, ask for t
 
 - **Budget warning threshold:** "The billing panel will warn at [new pct]% of a client's budget cap going forward."
 
-- **Disabling the billing panel:** "The end-of-session prompt will no longer appear. You'll need to run `/billing:billing-status` or `/billing:time-entry` manually to log time. Also removes the Stop hook from your settings.json — want me to do that? [Y/n]"
+- **Disabling the billing panel:** "The end-of-session prompt will no longer appear. You'll need to run `/billing:billing-status` or `/billing:time-entry` manually to log time. I'll remove both the Stop hook and the UserPromptSubmit hook from your settings.json — leaving either in place would keep creating `.session-start` files or producing stale block decisions. Want me to remove both? [Y/n]"
 
 - **Enabling the billing panel (was disabled):** Walk through the hook setup (same as cold-start Phase 6).
 

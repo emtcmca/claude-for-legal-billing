@@ -141,7 +141,7 @@ Ask: "At what percentage of a client's budget cap should the billing panel warn 
 
 ### Phase 9: Write config and confirm
 
-Write `~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md` with all values filled in. Show the user a summary before writing and ask for confirmation.
+Write `~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md` with all values filled in. Use `.claude-plugin/config-template.md` as the structural reference for section names and placeholder markers. Show the user a summary before writing and ask for confirmation.
 
 Create the following directories under the billing data path if they don't exist:
 - `attorneys/`
