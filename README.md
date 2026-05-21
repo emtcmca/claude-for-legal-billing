@@ -16,7 +16,7 @@ Attorneys spend billable time working inside Claude Code — reviewing contracts
 - **Billing reports** — WIP dashboards, client billing history, attorney utilization, budget status, and AI cost summaries.
 - **Budget warnings** — Panel warns at configurable thresholds (default 75% and 90%) when a client is approaching their budget cap.
 - **Multi-attorney support** — All attorneys point to the same shared folder (OneDrive, network drive). Each attorney has their own rate card; the register is shared.
-- **Monthly digest agent** — Scheduled agent surfaces outstanding WIP, stale entries, and budget alerts at the start of each month.
+- **Billing digest agent** — On-demand agent surfaces outstanding WIP, stale entries, and budget alerts. Schedule it with `/schedule "first business day of each month" /billing:billing-summary` or run it any time manually.
 
 ---
 

@@ -39,7 +39,9 @@ a template. If you're seeing `[PLACEHOLDER]` values below, run `/billing:cold-st
 
 **Data path:** [PLACEHOLDER — `~/.claude/plugins/config/claude-for-legal/billing/` for solo; shared OneDrive/network path for firms]
 
-*Every skill reads and writes to this path. To move billing data to a shared folder, update this path and move the existing `attorneys/`, `clients/`, `time-register.yaml`, and `invoices/` directories there.*
+**Active attorney:** [PLACEHOLDER — slug of the attorney using this machine, e.g. `alice-jones`]
+
+*Every skill reads and writes to the data path. `Active attorney` is a per-machine setting: in a firm using a shared data path, each attorney's machine has their own slug here. The session timer hook uses it to key timer files by attorney so multiple attorneys sharing the same folder do not interfere with each other's timers.*
 
 ---
 

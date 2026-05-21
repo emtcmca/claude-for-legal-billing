@@ -1,10 +1,10 @@
 ---
 name: billing-summary
 description: >
-  Scheduled agent that reads the time register, computes the monthly WIP summary,
-  and posts a billing digest. Runs monthly by default (first of the month). Posts
-  to the destination configured in the billing practice profile. Trigger phrases:
-  "billing summary", "what's my WIP", "monthly billing", or on schedule.
+  Agent that reads the time register, computes a WIP summary, and posts a billing
+  digest. Invocable on demand. To run on a schedule, use Claude Code's scheduling
+  feature: /schedule "first business day of each month" /billing:billing-summary.
+  Trigger phrases: "billing summary", "what's my WIP", "monthly billing".
 model: sonnet
 tools: ["Read", "mcp__*__slack_send_message"]
 ---
@@ -13,11 +13,17 @@ tools: ["Read", "mcp__*__slack_send_message"]
 
 ## Purpose
 
-Unbilled time accumulates silently. This agent reads the register at the start of each month, surfaces what's outstanding, and prompts the attorney to review before entries age further.
+Unbilled time accumulates silently. This agent reads the register, surfaces what's outstanding, and prompts the attorney to review before entries age further.
 
-## Schedule
+## Invocation and scheduling
 
-Monthly, first business day of each month. Configurable — weekly if billing volume is high.
+Run on demand with `/billing:billing-summary`. To automate, use Claude Code's built-in scheduling:
+
+```
+/schedule "first business day of each month" /billing:billing-summary
+```
+
+No scheduling mechanism is bundled with the plugin — invoking the agent is the only built-in trigger. Weekly cadence works well for high-volume practices.
 
 ## What it does
 

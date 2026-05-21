@@ -88,6 +88,8 @@ If yes, repeat. If no, continue.
 
 Write each attorney to `[billing_data_path]/attorneys/[slug].yaml`.
 
+Then ask: "Which of these attorney profiles is yours on this machine?" (List the slugs just configured, plus any already in `[billing_data_path]/attorneys/`.) This sets `**Active attorney:**` in the config — the session timer hooks use it to key timer files by attorney, so multiple attorneys sharing the same billing folder do not interfere with each other.
+
 ---
 
 ### Phase 5: Task codes

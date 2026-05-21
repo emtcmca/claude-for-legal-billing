@@ -37,14 +37,16 @@ If no active matter is found and `--session-end` was passed, show a minimal pane
 
 When triggered with `--session-end`:
 
-1. Look for a session start file at `[billing_data_path]/.session-start`. This file is written by the `UserPromptSubmit` hook (`session-start.ps1`) that the cold-start interview installs. It contains a Unix timestamp (integer seconds since epoch).
-2. If the file exists, read the timestamp, compute elapsed minutes, round UP to the next 0.1h increment:
+1. **Locate the session timer file.** Timer files live at `[billing_data_path]/.sessions/[attorney-slug]_[session-id]` — one file per session per attorney, so multiple attorneys sharing the same data path do not interfere.
+   - When triggered by the Stop hook's block decision, the reason text contains `Session timer: [path]`. Extract the exact path from that context and use it.
+   - When invoked manually (no path in context), scan `[billing_data_path]/.sessions/` for files matching `[active-attorney-slug]_*` modified in the last 24 hours. Use the most recently modified.
+   - If no file is found either way, prompt: "How long was this session? (Enter as hours like `0.8` or minutes like `48m`)" and hold `session_file = null`.
+2. If a timer file was found, read its Unix timestamp, compute elapsed minutes, round UP to the next 0.1h increment:
    - 1–6 min → 0.1h
    - 7–12 min → 0.2h
    - 13–18 min → 0.3h
    - ... (ceiling division: `ceil(minutes / 6) × 0.1`)
-3. If the file does not exist, prompt: "How long was this session? (Enter as hours like `0.8` or minutes like `48m`)"
-4. Hold the computed elapsed time in memory. Do NOT delete `.session-start` yet — deletion happens only after a terminal decision (log, skip). If the attorney edits hours, switches client, or abandons mid-flow, the file must remain so the Stop hook can re-prompt on the next stop attempt.
+3. Hold the computed elapsed time AND the session file path in memory. Do NOT delete the file yet — deletion happens only after a terminal decision (log or skip). Edit, switch-client, and cancel paths leave the file intact so the Stop hook can re-prompt.
 
 ### 4. Look up today's entries and WIP
 
@@ -113,9 +115,9 @@ Wait for the attorney's response:
        ai_cost_usd: null
        notes: null
      ```
-  4. Delete `[billing_data_path]/.session-start`.
-- **User types `edit hours/rate`**: Ask which value to change, then re-display panel.
-- **User types `skip`**: Delete `[billing_data_path]/.session-start` (so the Stop hook does not block again). Confirm "OK — session not logged. You can log it later with `/billing:time-entry`."
+  4. Delete the session timer file identified in step 3 (the specific `[billing_data_path]/.sessions/[attorney-slug]_[session-id]` path). If no file path was held (manual hour entry), do nothing.
+- **User types `edit hours/rate`**: Ask which value to change, then re-display panel. Do NOT delete the session timer file.
+- **User types `skip`**: Delete the session timer file (same path as above) so the Stop hook does not block again on the next stop attempt. Confirm "OK — session not logged. You can log it later with `/billing:time-entry`."
 - **User types `switch client`**: Ask which client, update the active client, and re-display the panel for the new client.
 
 ### 6. Budget warnings
