@@ -5,5 +5,8 @@
   "author": {
     "name": "Eric Tetzlaff",
     "email": "tetzlae@gmail.com"
+  },
+  "_notes": {
+    "root_claude_md": "The root CLAUDE.md is a user config template copied to ~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md by cold-start-interview. It is not loaded as plugin context by Claude Code (validator will warn). All runtime behavior is defined in skills/*/SKILL.md files, which explicitly read from the config path. This matches the pattern used by all claude-for-legal plugins (commercial-legal, ip-legal, etc.) and is intentional."
   }
 }

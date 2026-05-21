@@ -90,9 +90,31 @@ If the client has `arrangement: flat-fee`, show: `[Flat fee matter — time trac
 
 Wait for the attorney's response:
 
-- **User types a narrative + `log`** (or just types a narrative and presses enter): Ask for task code if `Task codes: required` or `optional` in config. If optional: "Task code? (L100/L200/etc., or press enter to skip)". Then call the time-entry skill to write the record.
+- **User types a narrative + `log`** (or just types a narrative and presses enter): Ask for task code if `Task codes: required` or `optional` in config. If optional: "Task code? (L100/L200/etc., or press enter to skip)". Then write the entry directly (do not delegate to `/billing:time-entry`, which is `disable-model-invocation`):
+  1. Generate an entry ID: `te-YYYY-MMDD-NNN` (NNN = next sequential number for the day, zero-padded).
+  2. Read `[billing_data_path]/time-register.yaml`; if the file is empty or comment-only, treat as an empty list.
+  3. Append a new top-level list item at the end of the file (each item starts with `- id:` at column 0):
+     ```yaml
+     - id: [id]
+       date: [YYYY-MM-DD]
+       attorney: [attorney-slug]
+       client: [client-slug]
+       matter_slug: [matter-slug or null]
+       plugin: [active-plugin or null]
+       hours: [rounded-hours]
+       rate: [rate]
+       amount: [hours * rate, 2 decimal places]
+       task_code: [code or null]
+       narrative: "[narrative]"
+       status: pending
+       invoice_id: null
+       session_minutes_actual: [actual-elapsed-minutes]
+       ai_cost_usd: null
+       notes: null
+     ```
+  4. Delete `[billing_data_path]/.session-start`.
 - **User types `edit hours/rate`**: Ask which value to change, then re-display panel.
-- **User types `skip`**: Confirm "OK — session not logged. You can log it later with `/billing:time-entry`."
+- **User types `skip`**: Delete `[billing_data_path]/.session-start` (so the Stop hook does not block again). Confirm "OK — session not logged. You can log it later with `/billing:time-entry`."
 - **User types `switch client`**: Ask which client, update the active client, and re-display the panel for the new client.
 
 ### 6. Budget warnings

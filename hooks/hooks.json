@@ -1,32 +1,16 @@
 {
-  "_note": "This file documents the hooks this plugin needs. The cold-start interview installs them into the user's settings.json. Hook scripts are copied from this directory to the version-independent config path during setup so they survive plugin updates.",
+  "_note": "This file's 'hooks' section is intentionally empty. Claude Code loads plugin-level hooks.json directly, so putting unresolved path placeholders here would create failing hooks alongside the correctly configured ones in settings.json. The cold-start interview writes the real commands — with the resolved billing data path — into the user's settings.json instead.",
 
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "description": "Writes a session-start timestamp on the first message of each session, enabling automatic elapsed-time calculation in the billing panel.",
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -NoProfile -NonInteractive -File \"${BILLING_HOOKS_PATH}/session-start.ps1\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "description": "Checks whether a legal matter is active and billing is enabled. If yes, outputs {\"decision\":\"block\",\"reason\":\"...\"} to block the session from closing until the attorney logs time via /billing:billing-status --session-end.",
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -NoProfile -NonInteractive -File \"${BILLING_HOOKS_PATH}/billing-stop.ps1\""
-          }
-        ]
-      }
-    ]
-  },
+  "hooks": {},
 
-  "_setup_instructions": "The cold-start interview replaces ${BILLING_HOOKS_PATH} with the actual config path (~/.claude/plugins/config/claude-for-legal/billing/hooks/) and writes the expanded commands into the user's ~/.claude/settings.json Stop and UserPromptSubmit hook arrays. It also copies session-start.ps1 and billing-stop.ps1 to that config path so they are not lost on plugin update."
+  "_hook_templates": {
+    "UserPromptSubmit": {
+      "description": "Writes a Unix timestamp on the first user message of each session. Used by billing-stop.ps1 to compute elapsed time. Deleting this file (done by billing-status on log or skip) resets the timer.",
+      "command_template": "powershell -NoProfile -NonInteractive -File \"[billing_data_path]/hooks/session-start.ps1\""
+    },
+    "Stop": {
+      "description": "Blocks session close when billing is enabled, a session timer is running (.session-start exists), and a legal matter is active. Outputs {\"decision\":\"block\",\"reason\":\"...\"} to prompt Claude to run /billing:billing-status --session-end.",
+      "command_template": "powershell -NoProfile -NonInteractive -File \"[billing_data_path]/hooks/billing-stop.ps1\""
+    }
+  }
 }

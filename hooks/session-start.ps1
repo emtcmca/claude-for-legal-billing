@@ -9,11 +9,11 @@ if (-not (Test-Path $configPath)) { exit 0 }
 $config = Get-Content $configPath -Raw -ErrorAction SilentlyContinue
 if (-not $config -or $config -match '\[PLACEHOLDER\]') { exit 0 }
 
-# Resolve data path from config; fall back to default
+# Resolve data path from config; handle **Data path:** (bold) and plain Data path:
 $dataPath = $null
-if ($config -match 'Data path:\s*(.+)') {
-    $raw = $matches[1].Trim()
-    $dataPath = $raw -replace '^~', $env:USERPROFILE
+if ($config -match '\*{0,2}Data path:\*{0,2}\s*(.+)') {
+    $raw = ($matches[1].Trim()) -replace '^\*+', '' -replace '\*+$', ''
+    $dataPath = ($raw -replace '^~', $env:USERPROFILE).Trim()
 }
 if (-not $dataPath) {
     $dataPath = Join-Path $env:USERPROFILE ".claude\plugins\config\claude-for-legal\billing"
