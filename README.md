@@ -305,6 +305,9 @@ All user data lives at the billing data path configured during cold-start (defau
 ├── clients/
 │   ├── acme-corp.yaml         # Client profile: billing contact, arrangement, budget
 │   └── beta-llp.yaml
+├── .sessions/
+│   └── alice-jones_abc123     # Per-session timer: [attorney-slug]_[session-id]
+│                              # Created by UserPromptSubmit hook, deleted on log/skip
 ├── time-register.yaml         # All time entries — append-only, never delete
 ├── invoice-register.yaml      # Index of issued invoices
 └── invoices/
