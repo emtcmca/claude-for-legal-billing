@@ -9,11 +9,11 @@ description: >
 argument-hint: "<client-slug> [--period YYYY-MM to YYYY-MM] [--matter <slug>]"
 ---
 
-# /billing:invoice-generate
+# /billing-legal:invoice-generate
 
 ## When this runs
 
-Billing period has closed. Entries have been reviewed and approved via `/billing:wip-review`. Attorney is ready to generate a supporting invoice document.
+Billing period has closed. Entries have been reviewed and approved via `/billing-legal:wip-review`. Attorney is ready to generate a supporting invoice document.
 
 ## Instructions
 
@@ -44,7 +44,7 @@ Read `[billing_data_path]/time-register.yaml`. Filter to:
 - `status: approved`
 - Within the period if `--period` was specified
 
-If no entries match: "No approved entries found for [client] in this period. Run `/billing:wip-review` first to approve pending entries."
+If no entries match: "No approved entries found for [client] in this period. Run `/billing-legal:wip-review` first to approve pending entries."
 
 Read `[billing_data_path]/clients/[slug].yaml` for:
 - `name` (display name)
@@ -194,7 +194,7 @@ status: issued
 >
 > To print or share: open the file and copy/paste into Word, or convert to PDF with any Markdown-to-PDF tool.
 >
-> To view: `/billing:billing-report --invoice [invoice-number]`
+> To view: `/billing-legal:billing-report --invoice [invoice-number]`
 
 ---
 

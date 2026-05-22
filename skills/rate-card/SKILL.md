@@ -8,7 +8,7 @@ description: >
 argument-hint: "[--attorney <slug>] [--client <slug>] [list | set | override]"
 ---
 
-# /billing:rate-card
+# /billing-legal:rate-card
 
 ## When this runs
 
@@ -72,7 +72,7 @@ Update an attorney's default rate or billing increment.
 4. Write updated YAML. Confirm before writing.
 
 After writing:
-> Rate updated for [name]. New entries will use the new rate. Existing pending entries are not affected — to adjust them, use `/billing:wip-review`.
+> Rate updated for [name]. New entries will use the new rate. Existing pending entries are not affected — to adjust them, use `/billing-legal:wip-review`.
 
 ---
 
@@ -125,6 +125,6 @@ Update client-level settings: billing arrangement, budget cap, retainer balance.
 
 ## What this skill does not do
 
-- Create attorney profiles from scratch — that's in `/billing:cold-start-interview`
-- Create client profiles from scratch — that's in `/billing:time-entry` (on first entry for a new client) or `/billing:customize`
-- Show or generate invoices — use `/billing:invoice-generate`
+- Create attorney profiles from scratch — that's in `/billing-legal:cold-start-interview`
+- Create client profiles from scratch — that's in `/billing-legal:time-entry` (on first entry for a new client) or `/billing-legal:customize`
+- Show or generate invoices — use `/billing-legal:invoice-generate`

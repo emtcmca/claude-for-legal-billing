@@ -4,6 +4,14 @@
 
 Attorneys spend billable time working inside Claude Code — reviewing contracts, drafting correspondence, researching matters. `billing-legal` captures that time automatically, associates it with the right client and matter, and generates printable invoice exhibits when billing period closes. It sits alongside your existing claude-for-legal plugins and follows the same file-based, config-driven architecture.
 
+## Install
+
+```
+claude plugin install https://github.com/emtcmca/claude-for-legal-billing
+```
+
+Then run `/billing-legal:cold-start-interview` to set up.
+
 ---
 
 ## What it does
@@ -16,7 +24,7 @@ Attorneys spend billable time working inside Claude Code — reviewing contracts
 - **Billing reports** — WIP dashboards, client billing history, attorney utilization, budget status, and AI cost summaries.
 - **Budget warnings** — Panel warns at configurable thresholds (default 75% and 90%) when a client is approaching their budget cap.
 - **Multi-attorney support** — All attorneys point to the same shared folder (OneDrive, network drive). Each attorney has their own rate card; the register is shared.
-- **Billing digest agent** — On-demand agent surfaces outstanding WIP, stale entries, and budget alerts. Run manually with `/billing:billing-summary`. For monthly automation, use Windows Task Scheduler to run `claude -p "/billing:billing-summary"` — billing data is on the local filesystem and must be accessed by a local process, not a cloud routine.
+- **Billing digest agent** — On-demand agent surfaces outstanding WIP, stale entries, and budget alerts. Run manually with `/billing-legal:billing-summary`. For monthly automation, use Windows Task Scheduler to run `claude -p "/billing-legal:billing-summary"` — billing data is on the local filesystem and must be accessed by a local process, not a cloud routine.
 
 ---
 
@@ -83,14 +91,14 @@ If the CLI command isn't available in your version of Claude Code, add the plugi
 }
 ```
 
-> To verify registration: open a new Claude Code session and type `/billing:cold-start-interview`. If Claude doesn't recognize the command, the path in `enabledPlugins` doesn't point to the folder containing `.claude-plugin/plugin.json` — double-check the path.
+> To verify registration: open a new Claude Code session and type `/billing-legal:cold-start-interview`. If Claude doesn't recognize the command, the path in `enabledPlugins` doesn't point to the folder containing `.claude-plugin/plugin.json` — double-check the path.
 
 ### Step 3 — Run setup
 
 In a new Claude Code session, run:
 
 ```
-/billing:cold-start-interview
+/billing-legal:cold-start-interview
 ```
 
 This is the only command you need. The interview takes 10–15 minutes and sets up everything:
@@ -117,7 +125,7 @@ C:\Users\[name]\OneDrive - FirmName\Billing\claude-for-legal\billing\
 
 **Step 2 — First attorney runs cold-start.** The first attorney to set up the plugin configures the shared folder path. This creates the `attorneys/`, `clients/`, and register files in the shared location.
 
-**Step 3 — Additional attorneys run cold-start, point to the same path.** Each subsequent attorney runs `/billing:cold-start-interview` on their own machine. When asked for the billing data location, they enter the same shared folder path used in Step 2. Their attorney profile is added to the shared `attorneys/` folder.
+**Step 3 — Additional attorneys run cold-start, point to the same path.** Each subsequent attorney runs `/billing-legal:cold-start-interview` on their own machine. When asked for the billing data location, they enter the same shared folder path used in Step 2. Their attorney profile is added to the shared `attorneys/` folder.
 
 **Important:** Two attorneys should not log time simultaneously if they're writing to the same YAML file within the same second. In practice this is rare — but for firms with very high concurrency needs (5+ attorneys billing simultaneously), a database-backed solution is a better fit than the file-based approach.
 
@@ -154,14 +162,14 @@ The panel only fires when a legal matter is active (i.e., you've run a skill lik
 
 **Automatic:** When you switch matters in another plugin (e.g., `/commercial-legal:matter-workspace switch new-client-nda`), billing auto-detects the new client if "Auto-detect active matter" is enabled.
 
-**Manual:** Run `/billing:billing-status --client [slug]` to see the status for a specific client, or type **switch client** inside the billing panel.
+**Manual:** Run `/billing-legal:billing-status --client [slug]` to see the status for a specific client, or type **switch client** inside the billing panel.
 
 ### Logging time manually
 
 For time spent outside Claude Code — phone calls, in-person meetings, court appearances, or work in other tools:
 
 ```
-/billing:time-entry
+/billing-legal:time-entry
 ```
 
 The skill walks you through selecting the client, matter, date, hours, rate, and narrative. It also checks for potential double-billing: if the same attorney already has an entry for the same client, matter, and date, you'll be warned before the entry is saved. The check is date-level — entries do not store start/end times, so overlap detection within a day is not possible.
@@ -173,10 +181,10 @@ The skill walks you through selecting the client, matter, date, hours, rate, and
 ### Setting and updating rates
 
 ```
-/billing:rate-card list                         # See all configured rates
-/billing:rate-card set --attorney alice-jones   # Update Alice's default rate
-/billing:rate-card override --attorney alice-jones --client acme-corp  # Client-specific rate
-/billing:rate-card override --client beta-llp   # Update a client's billing arrangement
+/billing-legal:rate-card list                         # See all configured rates
+/billing-legal:rate-card set --attorney alice-jones   # Update Alice's default rate
+/billing-legal:rate-card override --attorney alice-jones --client acme-corp  # Client-specific rate
+/billing-legal:rate-card override --client beta-llp   # Update a client's billing arrangement
 ```
 
 **Billing arrangements:**
@@ -194,7 +202,7 @@ The skill walks you through selecting the client, matter, date, hours, rate, and
 Before generating an invoice, review pending entries:
 
 ```
-/billing:wip-review --client acme-corp
+/billing-legal:wip-review --client acme-corp
 ```
 
 For each entry you can:
@@ -210,9 +218,9 @@ Nothing moves to an invoice without explicit approval here.
 After approving entries via `wip-review`:
 
 ```
-/billing:invoice-generate acme-corp
-/billing:invoice-generate acme-corp --period 2026-05          # Just May 2026
-/billing:invoice-generate acme-corp --matter acme-msa-2026    # One matter only
+/billing-legal:invoice-generate acme-corp
+/billing-legal:invoice-generate acme-corp --period 2026-05          # Just May 2026
+/billing-legal:invoice-generate acme-corp --matter acme-msa-2026    # One matter only
 ```
 
 This generates a Markdown file at:
@@ -277,18 +285,18 @@ billing@hartley.law
 ### Billing reports
 
 ```
-/billing:billing-report                          # WIP dashboard (all clients)
-/billing:billing-report --client acme-corp       # Full history for one client
-/billing:billing-report --attorney alice-jones   # Utilization summary
-/billing:billing-report --month 2026-05          # All activity in May 2026
-/billing:billing-report --invoice INV-2026-007   # Review a specific invoice
+/billing-legal:billing-report                          # WIP dashboard (all clients)
+/billing-legal:billing-report --client acme-corp       # Full history for one client
+/billing-legal:billing-report --attorney alice-jones   # Utilization summary
+/billing-legal:billing-report --month 2026-05          # All activity in May 2026
+/billing-legal:billing-report --invoice INV-2026-007   # Review a specific invoice
 ```
 
 ### Checking current status
 
 ```
-/billing:billing-status                          # Quick status for active client
-/billing:billing-status --client acme-corp       # Status for a specific client
+/billing-legal:billing-status                          # Quick status for active client
+/billing-legal:billing-status --client acme-corp       # Status for a specific client
 ```
 
 ---
@@ -419,27 +427,27 @@ The ABA's formal opinions are at [americanbar.org](https://www.americanbar.org).
 
 | Command | What it does |
 |---|---|
-| `/billing:cold-start-interview` | First-time setup |
-| `/billing:cold-start-interview --redo` | Re-run full setup |
-| `/billing:billing-status` | Show active client status |
-| `/billing:billing-status --session-end` | Trigger end-of-session panel manually |
-| `/billing:billing-status --client <slug>` | Show status for specific client |
-| `/billing:time-entry` | Log time manually |
-| `/billing:rate-card list` | View all rates |
-| `/billing:rate-card set --attorney <slug>` | Update attorney rate |
-| `/billing:rate-card override --attorney <slug> --client <slug>` | Client-specific rate |
-| `/billing:rate-card override --client <slug>` | Update client arrangement/budget |
-| `/billing:wip-review` | Review pending entries (active client) |
-| `/billing:wip-review --client <slug>` | Review entries for specific client |
-| `/billing:wip-review --all` | Review all pending entries firm-wide |
-| `/billing:invoice-generate <slug>` | Generate invoice exhibit |
-| `/billing:invoice-generate <slug> --period YYYY-MM` | Invoice for one month |
-| `/billing:billing-report` | WIP dashboard |
-| `/billing:billing-report --client <slug>` | Client history |
-| `/billing:billing-report --attorney <slug>` | Attorney utilization |
-| `/billing:billing-report --month YYYY-MM` | Monthly activity |
-| `/billing:billing-report --invoice <id>` | Review issued invoice |
-| `/billing:customize` | Change one setting |
+| `/billing-legal:cold-start-interview` | First-time setup |
+| `/billing-legal:cold-start-interview --redo` | Re-run full setup |
+| `/billing-legal:billing-status` | Show active client status |
+| `/billing-legal:billing-status --session-end` | Trigger end-of-session panel manually |
+| `/billing-legal:billing-status --client <slug>` | Show status for specific client |
+| `/billing-legal:time-entry` | Log time manually |
+| `/billing-legal:rate-card list` | View all rates |
+| `/billing-legal:rate-card set --attorney <slug>` | Update attorney rate |
+| `/billing-legal:rate-card override --attorney <slug> --client <slug>` | Client-specific rate |
+| `/billing-legal:rate-card override --client <slug>` | Update client arrangement/budget |
+| `/billing-legal:wip-review` | Review pending entries (active client) |
+| `/billing-legal:wip-review --client <slug>` | Review entries for specific client |
+| `/billing-legal:wip-review --all` | Review all pending entries firm-wide |
+| `/billing-legal:invoice-generate <slug>` | Generate invoice exhibit |
+| `/billing-legal:invoice-generate <slug> --period YYYY-MM` | Invoice for one month |
+| `/billing-legal:billing-report` | WIP dashboard |
+| `/billing-legal:billing-report --client <slug>` | Client history |
+| `/billing-legal:billing-report --attorney <slug>` | Attorney utilization |
+| `/billing-legal:billing-report --month YYYY-MM` | Monthly activity |
+| `/billing-legal:billing-report --invoice <id>` | Review issued invoice |
+| `/billing-legal:customize` | Change one setting |
 
 ---
 
@@ -456,10 +464,10 @@ Entry saved to time-register.yaml (status: pending)
         ↓
 [End of billing period]
         ↓
-/billing:wip-review --client [slug]
+/billing-legal:wip-review --client [slug]
   → approve / write down / write off
         ↓
-/billing:invoice-generate [slug]
+/billing-legal:invoice-generate [slug]
         ↓
 invoices/INV-YYYY-NNN.md created
         ↓
@@ -473,9 +481,9 @@ Copy into your billing system / attach to client invoice
 If you start solo and later want to move to a shared folder:
 
 1. Copy your existing billing data folder to the new shared location
-2. Run `/billing:customize`
+2. Run `/billing-legal:customize`
 3. Update the "Data path" to the new shared path
-4. Each other attorney runs `/billing:cold-start-interview` on their machine and enters the same shared path
+4. Each other attorney runs `/billing-legal:cold-start-interview` on their machine and enters the same shared path
 
 ---
 

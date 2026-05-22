@@ -8,17 +8,17 @@ description: >
 argument-hint: "[--session-end to show the end-of-session panel | --client <slug> to view a specific client]"
 ---
 
-# /billing:billing-status
+# /billing-legal:billing-status
 
 ## When this runs
 
-Manually (`/billing:billing-status`), or triggered by the Stop hook at end of session with `--session-end`. With `--client <slug>`, shows status for that client even if a different one is active.
+Manually (`/billing-legal:billing-status`), or triggered by the Stop hook at end of session with `--session-end`. With `--client <slug>`, shows status for that client even if a different one is active.
 
 ## Instructions
 
 ### 1. Read config
 
-Read `~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md`. If it has `[PLACEHOLDER]` values, say: "Billing setup isn't complete yet. Run `/billing:cold-start-interview` first." Stop.
+Read `~/.claude/plugins/config/claude-for-legal/billing/CLAUDE.md`. If it has `[PLACEHOLDER]` values, say: "Billing setup isn't complete yet. Run `/billing-legal:cold-start-interview` first." Stop.
 
 Get `billing_data_path` from the config.
 
@@ -29,7 +29,7 @@ Check these sources in order (first match wins):
 1. If `--client <slug>` was passed, use that client.
 2. Check each installed plugin's active matter by reading its practice-level `CLAUDE.md` at `~/.claude/plugins/config/claude-for-legal/<plugin>/CLAUDE.md`. Check these plugins in order: `commercial-legal`, `ip-legal`, `corporate-legal`, `ai-governance-legal`, `product-legal`, `litigation-legal`. For each, look for a line matching the pattern `Active matter: <slug>` where `<slug>` is not the literal word `none` and not the phrase `none — practice-level context only`. The first non-none slug found is the active matter.
 3. Once the active matter slug and plugin are known, read the matter's context file at `~/.claude/plugins/config/claude-for-legal/<plugin>/matters/<slug>/matter.md`. Parse the `**Client:**` line to get the client display name, and derive a client slug from it (lowercase-hyphenated). If `matter.md` is not found, use the matter slug itself as the client identifier.
-4. Look up `[billing_data_path]/clients/<client-slug>.yaml`. If the file does not exist, proceed with the display name from `matter.md` and note in the panel that no billing profile exists for this client yet (offer to create one via `/billing:time-entry`).
+4. Look up `[billing_data_path]/clients/<client-slug>.yaml`. If the file does not exist, proceed with the display name from `matter.md` and note in the panel that no billing profile exists for this client yet (offer to create one via `/billing-legal:time-entry`).
 
 If no active matter is found and `--session-end` was passed, show a minimal panel asking which client to log against.
 
@@ -92,7 +92,7 @@ If the client has `arrangement: flat-fee`, show: `[Flat fee matter — time trac
 
 Wait for the attorney's response:
 
-- **User types a narrative + `log`** (or just types a narrative and presses enter): Ask for task code if `Task codes: required` or `optional` in config. If optional: "Task code? (L100/L200/etc., or press enter to skip)". Then write the entry directly (do not delegate to `/billing:time-entry`, which is `disable-model-invocation`):
+- **User types a narrative + `log`** (or just types a narrative and presses enter): Ask for task code if `Task codes: required` or `optional` in config. If optional: "Task code? (L100/L200/etc., or press enter to skip)". Then write the entry directly (do not delegate to `/billing-legal:time-entry`, which is `disable-model-invocation`):
   1. Generate an entry ID: `te-YYYY-MMDD-NNN` (NNN = next sequential number for the day, zero-padded).
   2. Read `[billing_data_path]/time-register.yaml`; if the file is empty or comment-only, treat as an empty list.
   2a. **Duplicate check** — scan existing entries for any with the same `attorney`, `client`, `matter_slug`, and `date` (today). If found, warn before proceeding: "There is already a time entry for [attorney] on [client] / [matter] today: '[existing narrative]' ([existing hours]h). Is this a separate billable activity or a duplicate? [Continue / Cancel]" If the attorney cancels, return to the panel without deleting the session timer file.
@@ -117,7 +117,7 @@ Wait for the attorney's response:
      ```
   4. Delete the session timer file identified in step 3 (the specific `[billing_data_path]/.sessions/[attorney-slug]_[session-id]` path). If no file path was held (manual hour entry), do nothing.
 - **User types `edit hours/rate`**: Ask which value to change, then re-display panel. Do NOT delete the session timer file.
-- **User types `skip`**: Delete the session timer file (same path as above) so the Stop hook does not block again on the next stop attempt. Confirm "OK — session not logged. You can log it later with `/billing:time-entry`."
+- **User types `skip`**: Delete the session timer file (same path as above) so the Stop hook does not block again on the next stop attempt. Confirm "OK — session not logged. You can log it later with `/billing-legal:time-entry`."
 - **User types `switch client`**: Ask which client, update the active client, and re-display the panel for the new client.
 
 ### 6. Budget warnings
@@ -135,10 +135,10 @@ After writing the time entry, show a brief confirmation:
 > ✓ Logged: [hours]h to [Client Name] / [matter-slug] — status: pending
 > Total WIP for [Client Name]: $[new WIP total]
 
-Then stop. Do not offer to generate an invoice — that's for `/billing:wip-review` and `/billing:invoice-generate`.
+Then stop. Do not offer to generate an invoice — that's for `/billing-legal:wip-review` and `/billing-legal:invoice-generate`.
 
 ## What this skill does not do
 
-- Generate invoices — use `/billing:invoice-generate`
-- Review or approve pending entries — use `/billing:wip-review`
-- Show cross-client or cross-attorney reports — use `/billing:billing-report`
+- Generate invoices — use `/billing-legal:invoice-generate`
+- Review or approve pending entries — use `/billing-legal:wip-review`
+- Show cross-client or cross-attorney reports — use `/billing-legal:billing-report`

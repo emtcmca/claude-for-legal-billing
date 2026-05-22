@@ -18,7 +18,7 @@ do not rely on this file being auto-loaded.
 # Billing Practice Profile
 
 *This file is written by the cold-start interview on first run. Until then, it's
-a template. If you're seeing `[PLACEHOLDER]` values below, run `/billing:cold-start-interview`.*
+a template. If you're seeing `[PLACEHOLDER]` values below, run `/billing-legal:cold-start-interview`.*
 
 *Once populated: edit this file directly. Every skill reads it before doing anything.*
 
@@ -47,7 +47,7 @@ a template. If you're seeing `[PLACEHOLDER]` values below, run `/billing:cold-st
 
 ## Attorneys
 
-*One entry per attorney who uses this plugin. Slug is lowercase-hyphenated. Add or update via `/billing:rate-card` or directly here.*
+*One entry per attorney who uses this plugin. Slug is lowercase-hyphenated. Add or update via `/billing-legal:rate-card` or directly here.*
 
 ```yaml
 # attorneys/[slug].yaml — created by cold-start-interview for each attorney
