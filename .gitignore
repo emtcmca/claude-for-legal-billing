@@ -1,3 +1,6 @@
+# Claude Code local settings — machine-specific, never commit
+.claude/
+
 # User billing data — never commit real billing data to source control
 # These paths are in the config directory (~/.claude/plugins/config/), not this repo,
 # but adding as a safeguard in case someone copies data files here.
