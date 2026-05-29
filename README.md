@@ -25,6 +25,8 @@ Then run `/billing-legal:cold-start-interview` to set up.
 - **Budget warnings** — Panel warns at configurable thresholds (default 75% and 90%) when a client is approaching their budget cap.
 - **Multi-attorney support** — All attorneys point to the same shared folder (OneDrive, network drive). Each attorney has their own rate card; the register is shared.
 - **Billing digest agent** — On-demand agent surfaces outstanding WIP, stale entries, and budget alerts. Run manually with `/billing-legal:billing-summary`. For monthly automation, use Windows Task Scheduler to run `claude -p "/billing-legal:billing-summary"` — billing data is on the local filesystem and must be accessed by a local process, not a cloud routine.
+- **LEDES 1998B export** — Generates a machine-readable LEDES 1998B file from any invoice for submission to corporate legal department e-billing systems (Serengeti, TyMetrix, Legal Tracker, and similar). Run `/billing-legal:ledes-export --invoice <id>` after generating an invoice exhibit.
+- **Activity audit trail** — An optional PostToolUse hook silently logs which documents were edited, created, or read during each session. At billing time, the session panel shows you the files touched to help write a specific narrative. The log is stored in the time register entry and can be included in invoice exhibits as a collapsed audit trail section — providing the evidence of AI-assisted work that billing reviewers increasingly require.
 
 ---
 
@@ -314,12 +316,14 @@ All user data lives at the billing data path configured during cold-start (defau
 │   ├── acme-corp.yaml         # Client profile: billing contact, arrangement, budget
 │   └── beta-llp.yaml
 ├── .sessions/
-│   └── alice-jones_abc123     # Per-session timer: [attorney-slug]_[session-id]
-│                              # Created by UserPromptSubmit hook, deleted on log/skip
+│   ├── alice-jones_abc123     # Per-session timer: [attorney-slug]_[session-id]
+│   └── alice-jones_abc123_activity  # Activity log for the same session (if enabled)
+│                              # Both created by hooks, deleted on log/skip
 ├── time-register.yaml         # All time entries — append-only, never delete
 ├── invoice-register.yaml      # Index of issued invoices
 └── invoices/
     ├── INV-2026-001.md        # Invoice exhibit — printable Markdown
+    ├── INV-2026-001.ledes     # LEDES 1998B export (generated on demand)
     └── INV-2026-002.md
 ```
 
@@ -333,6 +337,8 @@ name: Alice Jones
 email: alice@firm.com
 default_rate: 350
 billing_increment: 0.1    # 0.1 = 6-minute minimum; 0.2 = 12-minute
+timekeeper_id: aj001      # used in LEDES exports; falls back to slug if absent
+timekeeper_classification: AT  # AT=attorney, PA=paralegal, OF=of counsel, CL=clerk
 rate_overrides:
   acme-corp: 325
 ```
@@ -348,6 +354,7 @@ arrangement: hourly
 budget_cap: 15000
 budget_billed: 6820
 retainer_balance: 1680
+ledes_client_id: ACME-001  # client's ID in their e-billing system; falls back to slug
 notes: Prefers monthly invoices. Budget warning at 75%.
 ```
 
@@ -370,7 +377,111 @@ notes: Prefers monthly invoices. Budget warning at 75%.
   session_minutes_actual: 46
   ai_cost_usd: 0.14
   notes: null
+  activity_log:
+    - "2026-05-21T14:23Z|Edit|vendor-nda-redline.docx"
+    - "2026-05-21T14:31Z|Write|acme-markup-notes.md"
+    - "2026-05-21T14:45Z|Read|acme-msa-background.pdf"
 ```
+
+---
+
+## LEDES 1998B Export
+
+Many corporate legal departments and insurance companies require invoices in LEDES 1998B format for their e-billing systems. After generating an invoice exhibit with `/billing-legal:invoice-generate`, run:
+
+```
+/billing-legal:ledes-export --invoice INV-2026-007
+```
+
+This generates a `.ledes` file at `[billing_data_path]/invoices/INV-2026-007.ledes`. You can also export by client and period without a finalized invoice:
+
+```
+/billing-legal:ledes-export --client acme-corp --period 2026-05
+```
+
+### Setting up LEDES identifiers
+
+Most e-billing systems require specific IDs that match their internal records. Set these once — they're stored in your attorney and client YAML files.
+
+**Timekeeper ID and classification (per attorney):**
+```
+/billing-legal:rate-card set --attorney alice-jones
+```
+- **Timekeeper ID:** your firm-assigned ID or bar number (falls back to attorney slug if not set)
+- **Timekeeper classification:** AT (attorney), PA (paralegal), OF (of counsel), CL (law clerk)
+
+**LEDES client ID (per client):**
+```
+/billing-legal:rate-card override --client acme-corp
+```
+- **LEDES client ID:** the ID the client uses in their e-billing system (e.g., `ACME-001`). Falls back to the client slug uppercased if not set.
+
+### LEDES format overview
+
+The output is a pipe-delimited plain text file following the LEDES 1998B spec:
+
+```
+LEDES1998B[]
+INVOICE_DATE|INVOICE_NUMBER|CLIENT_ID|...|TIMEKEEPER_CLASSIFICATION[]
+20260601|INV-2026-007|ACME-001|...|AT[]
+20260601|INV-2026-007|ACME-001|...|AT[]
+```
+
+Write-off entries are excluded (zero-dollar lines are not valid in LEDES format). Flat-fee entries are included with their tracked hours.
+
+---
+
+## Activity Audit Trail
+
+Billing reviewers for AI-assisted work increasingly require evidence that the time was genuinely spent on the matter. The activity audit trail provides this.
+
+### How it works
+
+When activity logging is enabled, a lightweight PostToolUse hook silently records every file that was edited, created, or read during a session. At the end of the session, the billing panel shows you the list:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  SESSION BILLING  Acme Corp  /  acme-msa-2026                   │
+│  Session: 46 min  →  0.8h                                       │
+│  Alice Jones  ·  $350/hr  →  $280.00                            │
+│─────────────────────────────────────────────────────────────────│
+│  Documents touched this session:                                │
+│  · vendor-nda-redline.docx  (edited ×2)                         │
+│  · acme-markup-notes.md  (created)                              │
+│  · acme-msa-background.pdf  (read)                              │
+│─────────────────────────────────────────────────────────────────│
+│  Describe the work (required for billing):                      │
+│  > Reviewed vendor NDA redline; drafted markup on...            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+The document list helps you write a specific, accurate narrative. It's also stored in the time register entry as `activity_log`.
+
+### Audit trail in invoice exhibits
+
+When `Activity log on invoice: enabled` is set, a collapsed audit trail section is included in the invoice `.md` file after each matter's time entries:
+
+```markdown
+<details>
+<summary>AI session activity — audit trail</summary>
+
+| Time | Action | Document |
+|---|---|---|
+| 2026-05-21 14:23 | Edited | vendor-nda-redline.docx |
+| 2026-05-21 14:31 | Created | acme-markup-notes.md |
+
+</details>
+```
+
+The `<details>` block keeps it accessible without cluttering the invoice. Most Markdown renderers (GitHub, VS Code, browser-based viewers) render it as a collapsed section that clients or reviewers can expand.
+
+### Privacy note
+
+The activity log stores only filenames (not full paths) in the time register. It never records file contents. The log is stored locally in `[billing_data_path]/.sessions/` during the session and moved to the time register entry when time is logged. It is deleted from `.sessions/` on log or skip.
+
+### Enabling activity logging
+
+Enable it during cold-start setup, or run `/billing-legal:customize` to toggle it on. The hook is registered in your Claude Code `settings.json` alongside the existing billing hooks.
 
 ---
 
@@ -447,6 +558,8 @@ The ABA's formal opinions are at [americanbar.org](https://www.americanbar.org).
 | `/billing-legal:billing-report --attorney <slug>` | Attorney utilization |
 | `/billing-legal:billing-report --month YYYY-MM` | Monthly activity |
 | `/billing-legal:billing-report --invoice <id>` | Review issued invoice |
+| `/billing-legal:ledes-export --invoice <id>` | Export invoice to LEDES 1998B format |
+| `/billing-legal:ledes-export --client <slug> --period YYYY-MM` | Export by client and period |
 | `/billing-legal:customize` | Change one setting |
 
 ---
@@ -456,11 +569,15 @@ The ABA's formal opinions are at [americanbar.org](https://www.americanbar.org).
 ```
 Work on matter in Claude Code
         ↓
+[Activity log hook records file operations silently]
+        ↓
 Session ends → billing panel appears
+  (shows documents touched to help write narrative)
         ↓
 Type narrative → [log]
         ↓
 Entry saved to time-register.yaml (status: pending)
+  activity_log stored with the entry
         ↓
 [End of billing period]
         ↓
@@ -470,8 +587,15 @@ Entry saved to time-register.yaml (status: pending)
 /billing-legal:invoice-generate [slug]
         ↓
 invoices/INV-YYYY-NNN.md created
+  (includes collapsed audit trail if enabled)
         ↓
 Copy into your billing system / attach to client invoice
+        ↓
+[If client requires e-billing submission]
+        ↓
+/billing-legal:ledes-export --invoice INV-YYYY-NNN
+        ↓
+invoices/INV-YYYY-NNN.ledes → upload to client's e-billing portal
 ```
 
 ---

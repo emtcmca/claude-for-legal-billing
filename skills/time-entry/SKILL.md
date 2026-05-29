@@ -137,6 +137,7 @@ On confirmation, generate an entry ID (`te-YYYY-MMDD-NNN` where NNN is zero-padd
   session_minutes_actual: null
   ai_cost_usd: null
   notes: "[notes or null]"
+  activity_log: null
 ```
 
 After writing, confirm:

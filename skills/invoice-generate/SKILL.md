@@ -164,7 +164,30 @@ status: issued
 - Include time entries with $0 rate
 - Note: "Contingency matter — fees contingent on outcome"
 
-### 7. Update registers
+### 7. Add activity audit trail (if enabled)
+
+Check config for `Activity log on invoice: enabled`. If enabled:
+
+For each matter group in the invoice, collect all `activity_log` entries from the time register entries in that group (skip entries where `activity_log` is null). If any exist, append a collapsed audit section immediately after the matter's time entries table:
+
+```markdown
+<details>
+<summary>AI session activity — audit trail</summary>
+
+| Time | Action | Document |
+|---|---|---|
+| [YYYY-MM-DD HH:MM] | [Edit/Write/Read] | [filename] |
+
+</details>
+```
+
+Parse each activity log entry (format: `ISO8601_TIMESTAMP|TOOL_NAME|FILENAME`). Convert timestamp to `YYYY-MM-DD HH:MM` in local time. Sort by timestamp ascending. Deduplicate: if the same file appears more than once with the same action, collapse to one row and note the count, e.g., `vendor-nda.docx (×3)`.
+
+The `<details>` block keeps the audit trail accessible without cluttering the invoice exhibit. Most Markdown renderers (GitHub, VS Code, browser-based viewers) render it as a collapsed section.
+
+If `Activity log on invoice: disabled` (or the setting is absent from config), skip this step entirely.
+
+### 9. Update registers
 
 **Update invoice-register.yaml** — append:
 ```yaml
@@ -185,7 +208,7 @@ status: issued
 
 **Update CLAUDE.md** — increment `Next invoice number` by 1.
 
-### 8. Confirm and close
+### 10. Confirm and close
 
 > ✓ Invoice [invoice-number] generated:
 >    File: [billing_data_path]/invoices/[invoice-number].md
@@ -195,6 +218,9 @@ status: issued
 > To print or share: open the file and copy/paste into Word, or convert to PDF with any Markdown-to-PDF tool.
 >
 > To view: `/billing-legal:billing-report --invoice [invoice-number]`
+>
+> LEDES export: if your client requires LEDES 1998B format for their e-billing system, run:
+>   `/billing-legal:ledes-export --invoice [invoice-number]`
 
 ---
 

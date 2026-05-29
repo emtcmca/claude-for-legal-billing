@@ -103,6 +103,25 @@ Options:
 
 ---
 
+### Phase 5.5: LEDES export
+
+> Many corporate legal departments and insurance companies require invoices in LEDES 1998B format for their e-billing systems (Serengeti, TyMetrix, Legal Tracker, etc.). Enable LEDES export to generate a machine-readable file alongside your invoice exhibits.
+
+Ask: "Enable LEDES 1998B export? [Y/n]"
+
+If yes:
+- Set `LEDES export: enabled` in the config.
+- Ask: "Default timekeeper classification for attorneys at your firm? (AT = attorney, PA = paralegal, OF = of counsel, CL = law clerk — default: AT)"
+- Write `Default timekeeper classification: [answer]` to the config.
+- For each attorney profile just created, add `timekeeper_classification: [default]` to their YAML unless the attorney specified a different one.
+- Say: "LEDES export enabled. To set a client-specific LEDES client ID (what their e-billing system calls your firm), run `/billing-legal:rate-card override --client [slug]` after setup. To set a timekeeper ID for a specific attorney (for clients who map to their own IDs), run `/billing-legal:rate-card set --attorney [slug]`."
+
+If no:
+- Set `LEDES export: disabled` in the config.
+- Say: "You can enable it later with `/billing-legal:customize`."
+
+---
+
 ### Phase 6: Billing panel
 
 > The billing panel appears at the end of each Claude Code session when a matter is active. It shows how long the session ran, the rounded billable time, and a prompt to log the entry. This is the core time-capture mechanism.
@@ -118,6 +137,14 @@ If yes:
 - Add two hooks to the settings.json `hooks` object (preserving any existing hooks):
   - A `Stop` hook with command: `powershell -NoProfile -NonInteractive -File "[billing_data_path]/hooks/billing-stop.ps1"`
   - A `UserPromptSubmit` hook with command: `powershell -NoProfile -NonInteractive -File "[billing_data_path]/hooks/session-start.ps1"`
+- Then ask: "Enable activity logging? This adds a lightweight hook that silently records which documents were opened or edited during each session. At billing time, the panel shows you the files touched so you can write a more specific narrative — and the log is attached to the time entry for audit purposes. The log is stored locally and only included in invoice exports if you choose. [Y/n]"
+- If activity logging yes:
+  - Copy `activity-log.ps1` from the plugin cache into `[billing_data_path]/hooks/`.
+  - Add a `PostToolUse` hook: `powershell -NoProfile -NonInteractive -File "[billing_data_path]/hooks/activity-log.ps1"`
+  - Ask: "Include the activity log in invoice exhibits as a collapsed audit trail section? [Y/n]"
+  - Set `Activity logging: enabled` and `Activity log on invoice: [enabled|disabled]` in the config.
+- If activity logging no:
+  - Set `Activity logging: disabled` and `Activity log on invoice: disabled` in the config.
 - Show the user the exact additions to settings.json and confirm before writing.
 - After writing: "The billing panel is now active. At the end of each session Claude will prompt you to log time. The session timer starts on your first message. You can disable it anytime with `/billing-legal:customize`."
 

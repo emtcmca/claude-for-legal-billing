@@ -83,6 +83,24 @@ a template. If you're seeing `[PLACEHOLDER]` values below, run `/billing-legal:c
 
 ---
 
+## LEDES export
+
+**LEDES export:** [PLACEHOLDER — enabled | disabled]
+**Default timekeeper classification:** [PLACEHOLDER — AT | PA | OF | CL]
+
+*(LEDES 1998B is the standard format required by most corporate legal departments and insurance companies for e-billing submission. Run `/billing-legal:ledes-export --invoice <id>` after generating an invoice exhibit. Set per-attorney timekeeper IDs and per-client LEDES client IDs via `/billing-legal:rate-card`.)*
+
+---
+
+## Activity logging
+
+**Activity logging:** [PLACEHOLDER — enabled | disabled]
+**Activity log on invoice:** [PLACEHOLDER — enabled | disabled]
+
+*(When enabled, a PostToolUse hook silently records which documents were opened or edited during each session. The log appears in the billing panel at session end to help write accurate narratives, and is stored in the time register entry. If "Activity log on invoice" is enabled, a collapsed audit trail section is included in invoice exhibits.)*
+
+---
+
 ## Notes
 
 [PLACEHOLDER — any firm-specific billing rules, e.g., "minimum 0.2h per task for litigation matters" or "all invoices require partner approval before sending"]
